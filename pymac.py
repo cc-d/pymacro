@@ -40,6 +40,10 @@ class Macro:
 
         self.curindex += 1
 
+        if pymline[0] == 'RESTART':
+            self.curindex = 0
+            self.curline = None
+
     @logf()
     def start_macro(self):
         sleep(self.start_delay)
