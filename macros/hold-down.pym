@@ -1,4 +1,4 @@
-WAIT 0.25
-HOLD down 1
-HOLD UP 1
+WAIT 0
+HOLD down 5
+HOLD up 5
 RESTART
