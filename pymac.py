@@ -7,7 +7,7 @@ from myfuncs import logf
 from threading import Thread
 from time import sleep
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 class MacroActions:
     @staticmethod
@@ -49,22 +49,36 @@ class Macro:
     quit = False
     start_delay = 2
     line_delay = 0
+    ident = '  '
 
     curindex = None
     curline = None
+
+    loopiter = None
+    loopindex = None
+    loopfor = None
+
     ma = MacroActions
 
     def __init__(self, pymfile: str = 'macros/hold-down.pym'):
         with open(pymfile, 'r') as f:
             self.lines = f.read().splitlines()
-        self.curindex = 0
+            self.maxlines = len(self.lines)
+            self.maxindex = self.maxlines - 1
+            self.curindex = 0
+
+    def __repr__(self):
+        return f'Macro<lineno={self.curindex} line={self.curline} ' + \
+            f'loopfor={self.loopfor} loopiter={self.loopiter} loopindex={self.loopindex}>'
 
     @logf()
     def exec_line(self, exline=None):
+        sleep(self.line_delay)
         if exline is None:
             exline = self.curline
+        print(f'{exline}')
 
-        spline = self.curline.split()
+        spline = self.curline.strip().split()
         cmd = spline[0]
 
         if cmd == 'WAIT':
@@ -78,18 +92,36 @@ class Macro:
 
     @logf()
     def parse_line(self, pymline: str):
-        print(pymline)
         self.curline = pymline
-        self.exec_line()
+
+        if pymline.startswith(self.ident):
+            pass
+        elif pymline.startswith('LOOP'):
+            print(pymline)
+            for i in range(int(self.curline.split()[1])):
+                self.exec_loop()
+        else:
+            self.exec_line(pymline)
+
         self.curindex += 1
 
     @logf()
-    def start_macro(self):
-        sleep(self.start_delay)
-        maxindex = len(self.lines) - 1
+    def exec_loop(self):
+        li = self.curindex + 1
+        for cmd in self.lines[li:]:
+            if cmd.startswith(self.ident):
+                self.exec_line(cmd)
+            else:
+                break
 
-        while self.quit is not True and self.curindex <= maxindex:
+    @logf()
+    def start_macro(self):
+        self.curindex = 0
+        sleep(self.start_delay)
+
+        while self.quit is not True and self.curindex <= self.maxindex:
             self.parse_line(self.lines[self.curindex])
+
 
     @logf()
     def restart_macro(self):
