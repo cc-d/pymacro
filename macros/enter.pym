@@ -1,3 +1,2 @@
-PRESS enter
-WAIT 0.01
-RESTART
+LOOP 10
+  PRESS enter

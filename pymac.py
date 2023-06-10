@@ -53,10 +53,6 @@ class Macro:
     curindex = None
     curline = None
 
-    loopiter = None
-    loopindex = None
-    loopfor = None
-
     def __init__(self, pymfile: str = 'macros/hold-down.pym'):
         with open(pymfile, 'r') as f:
             self.lines = f.read().splitlines()
@@ -65,17 +61,11 @@ class Macro:
             self.curindex = 0
 
     def __repr__(self):
-        return f'Macro<lineno={self.curindex} line={self.curline} ' + \
-            f'loopfor={self.loopfor} loopiter={self.loopiter} loopindex={self.loopindex}>'
+        return f'Macro<lineno={self.curindex} line={self.curline}>'
 
     @logf()
-    def exec_line(self, exline):
-        self.curline = exline
-        print(f'{exline}')
-
-        spline = self.curline.strip().split()
-        cmd = str(spline[0]).upper()
-
+    def exec_cmd(self, spline):
+        cmd = str(spline[0])
         if cmd == 'WAIT':
             WAIT(float(spline[1]))
         elif cmd == 'HOLD':
@@ -84,6 +74,33 @@ class Macro:
             PRESS(str(spline[1]))
         elif cmd == 'RESTART':
             self.restart_macro()
+
+    @logf()
+    def exec_line(self, exline):
+        exline = str(exline)
+        self.curline = exline
+        print(f'{exline}')
+
+        if exline.startswith(self.ident):
+            return
+
+        spline = exline.strip().split()
+        cmd = str(spline[0]).upper()
+
+        if cmd.startswith('LOOP'):
+            loopfor = int(spline[1])
+            loop = []
+            loopindex = self.curindex
+            while loopindex < self.maxindex:
+                loopindex = loopindex + 1
+                loopline = str(self.lines[loopindex])
+                if loopline.startswith('  '):
+                    loop.append(loopline.strip().split())
+                else:
+                    break
+            for i in range(loopfor):
+                for l in loop:
+                    self.exec_cmd(l)
 
     @logf()
     def start_macro(self):
