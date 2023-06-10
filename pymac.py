@@ -69,7 +69,7 @@ class Macro:
             f'loopfor={self.loopfor} loopiter={self.loopiter} loopindex={self.loopindex}>'
 
     @logf()
-    def exec_line(self, exline=None):
+    def exec_line(self, exline):
         self.curline = exline
         print(f'{exline}')
 
@@ -77,17 +77,16 @@ class Macro:
         cmd = str(spline[0]).upper()
 
         if cmd == 'WAIT':
-            return WAIT(float(spline[1]))
+            WAIT(float(spline[1]))
         elif cmd == 'HOLD':
-            return HOLD(str(spline[1]), float(spline[2]))
+            HOLD(str(spline[1]), float(spline[2]))
         elif cmd == 'PRESS':
-            return PRESS(str(spline[0]))
+            PRESS(str(spline[1]))
         elif cmd == 'RESTART':
-            return self.restart_macro()
+            self.restart_macro()
 
     @logf()
     def start_macro(self):
-        self.curindex = 0
         while self.curindex <= self.maxindex:
             self.exec_line(self.lines[self.curindex])
             self.curindex += 1
