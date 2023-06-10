@@ -101,6 +101,8 @@ class Macro:
             for i in range(loopfor):
                 for l in loop:
                     self.exec_cmd(l)
+        else:
+            self.exec_cmd(spline)
 
     @logf()
     def start_macro(self):
@@ -110,7 +112,7 @@ class Macro:
 
     @logf()
     def restart_macro(self):
-        self.curindex = 0
+        self.curindex = -1
 
 
 def main():
