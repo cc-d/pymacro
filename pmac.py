@@ -121,8 +121,8 @@ class Macro:
         start_delay: float = 1.0,
         line_delay: float = 0.0
     ):
-        self.lines = format_macrolines(read_macrofile())
-        write_macrofile(self.lines)
+        self.lines = format_macrolines(read_macrofile(pymfile))
+        write_macrofile(self.lines, pymfile)
 
         self.maxlines = len(self.lines)
         self.maxindex = self.maxlines - 1
