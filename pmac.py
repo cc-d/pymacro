@@ -203,7 +203,7 @@ class Macro:
     @logf()
     def restart_macro(self):
         """ resets macro file execution by setting the line execution index to 0 """
-        self.curindex = 0
+        self.curindex = -1 # is incremented after to 0
 
 
 def main():
