@@ -68,7 +68,7 @@ class Macro:
     curline = None
 
     def __init__(self,
-        pymfile: str = 'macros/test.pym',
+        pymfile: str = 'm/test.pym',
         start_delay: float = 1.0,
         line_delay: float = 0.0
     ):
@@ -159,12 +159,20 @@ class Macro:
 def main():
     """ this program is intended to be used by running this file directly """
     parser = argparse.ArgumentParser(description='Execute macros from a file.')
-    parser.add_argument('pymfile', type=str, nargs='?', default='macros/test.pym',
-                        help='Path to the macro file')
-    parser.add_argument('-s', '--start-delay', type=float, default=1.0,
-                        help='Delay (in seconds) before the macro starts')
-    parser.add_argument('-l', '--line-delay', type=float, default=0.0,
-                        help='Delay (in seconds) between each line/command')
+
+    parser.add_argument(
+        'pymfile', type=str, nargs='?', default='m/test.pym',
+        help='Path to the macro file'
+    )
+    parser.add_argument(
+        '-s', '--start-delay', type=float, default=1.0,
+        help='Delay (in seconds) before the macro starts'
+    )
+    parser.add_argument(
+        '-l', '--line-delay', type=float, default=0.0,
+        help='Delay (in seconds) between each line/command'
+    )
+
     args = parser.parse_args()
 
     pmac = Macro(pymfile=args.pymfile, start_delay=args.start_delay, line_delay=args.line_delay)
