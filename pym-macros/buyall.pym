@@ -1,0 +1,14 @@
+PRESS down
+PRESS enter
+PRESS down
+LOOP 50
+  PRESS enter
+  WAIT 0.01
+PRESS right
+LOOP 10
+  PRESS enter
+  WAIT 0.05
+PRESS up
+LOOP 10
+  PRESS enter
+  WAIT 0.05

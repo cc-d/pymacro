@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import pyautogui
 import sys
 import logging
@@ -52,8 +53,8 @@ class Macro:
     supports loops that repeat a sequence of commands.
 
     Attributes:
-        start_delay (int): A delay (in seconds) before the macro starts.
-        line_delay (int): A delay (in seconds) between each line/command.
+        start_delay (float): A delay (in seconds) before the macro starts.
+        line_delay (float): A delay (in seconds) between each line/command.
         curindex (int): The current line/command index.
         curline (str): The current line/command.
         lines (List[str]): All lines/commands of the macro.
@@ -63,18 +64,21 @@ class Macro:
     Returns:
         Macro: The Macro object with the commands loaded.
     """
-
-    start_delay = 1
-    line_delay = 0
-
     curindex = None
     curline = None
 
-    def __init__(self, pymfile: str = 'macros/test.pym'):
+    def __init__(self,
+        pymfile: str = 'macros/test.pym',
+        start_delay: float = 1.0,
+        line_delay: float = 0.0
+    ):
         with open(pymfile, 'r', encoding='utf8') as f:
             self.lines = f.read().splitlines()
             self.maxlines = len(self.lines)
             self.maxindex = self.maxlines - 1
+
+        self.start_delay = start_delay
+        self.line_delay = line_delay
 
     def __repr__(self):
         return f'Macro<lineno={self.curindex} line={self.curline}>'
@@ -154,9 +158,16 @@ class Macro:
 
 def main():
     """ this program is intended to be used by running this file directly """
-    pymfile = str(sys.argv[1]) if len(sys.argv) > 1 else 'macros/test.pym'
+    parser = argparse.ArgumentParser(description='Execute macros from a file.')
+    parser.add_argument('pymfile', type=str, nargs='?', default='macros/test.pym',
+                        help='Path to the macro file')
+    parser.add_argument('-s', '--start-delay', type=float, default=1.0,
+                        help='Delay (in seconds) before the macro starts')
+    parser.add_argument('-l', '--line-delay', type=float, default=0.0,
+                        help='Delay (in seconds) between each line/command')
+    args = parser.parse_args()
 
-    pmac = Macro(pymfile)
+    pmac = Macro(pymfile=args.pymfile, start_delay=args.start_delay, line_delay=args.line_delay)
     pmac.start_macro()
 
 
