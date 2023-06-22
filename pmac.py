@@ -4,6 +4,7 @@ import pyautogui
 import sys
 import logging
 import re
+import os
 from typing import List
 from myfuncs import logf
 from threading import Thread
@@ -47,14 +48,14 @@ def PRESS(key: str):
 
 
 @logf()
-def read_macrofile(pymfile: str = 'm/test.pym') -> list:
+def read_macrofile(pymfile: str = 'macros/test.pym') -> list:
     """ this is its own func to allow easy logging with logf, returns macrofile lines as list """
     with open(pymfile, 'r+', encoding='utf8') as f:
         return f.read().splitlines()
 
 
 @logf()
-def write_macrofile(mlines: List[str], pymfile: str = 'm/test.pym') -> list:
+def write_macrofile(mlines: List[str], pymfile: str = 'macros/test.pym') -> list:
     """ this is its own func to allow easy logging with logf, writes list of lines to macrofile """
     mfstr = ''
     with open(pymfile, 'w', encoding='utf8') as f:
@@ -87,7 +88,7 @@ def format_macrolines(mlines: List[str]) -> List[str]:
 
 
 @logf(level='info')
-def format_macrofile(pymfile: str = 'm/test.pym') -> List[str]:
+def format_macrofile(pymfile: str = 'macros/test.pym') -> List[str]:
     """ replaces any lower case commands in macrofiles with upper and converts ident to 2 spaces """
     lines = read_macrofile()
     lines = format_macrolines(lines)
@@ -117,7 +118,7 @@ class Macro:
     curline = None
 
     def __init__(self,
-        pymfile: str = 'm/test.pym',
+        pymfile: str = 'macros/test.pym',
         start_delay: float = 1.0,
         line_delay: float = 0.0
     ):
@@ -206,12 +207,27 @@ class Macro:
         self.curindex = -1 # is incremented after to 0
 
 
+@logf(level='info')
+def select_pymfile(macdir: str = 'macros/') -> str:
+    """ allows the users to select the macrofile using keyboard option rather than filename """
+    pymfiles = [x for x in os.listdir(macdir)]
+
+    choicestr = '\nSelect Macro File to execute: \n\n'
+
+    for i in range(len(pymfiles)):
+        choicestr += f'[{i + 1}] {pymfiles[i]}\n'
+
+    print(choicestr)
+    uc = input(f'Select Macrofile: ')
+    return macdir + pymfiles[int(uc) - 1]
+
+
 def main():
     """ this program is intended to be used by running this file directly """
     parser = argparse.ArgumentParser(description='Execute macros from a file.')
 
     parser.add_argument(
-        'pymfile', type=str, nargs='?', default='m/test.pym',
+        'pymfile', type=str, nargs='?', default='',
         help='Path to the macro file'
     )
     parser.add_argument(
@@ -224,8 +240,12 @@ def main():
     )
 
     args = parser.parse_args()
+    if args.pymfile == '':
+        pymfile = select_pymfile()
+    else:
+        pymfile = args.pymfile
 
-    pmac = Macro(pymfile=args.pymfile, start_delay=args.start_delay, line_delay=args.line_delay)
+    pmac = Macro(pymfile=pymfile, start_delay=args.start_delay, line_delay=args.line_delay)
     pmac.start_macro()
 
 
