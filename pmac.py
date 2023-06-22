@@ -4,6 +4,7 @@ import pyautogui
 import sys
 import logging
 import re
+from typing import List
 from myfuncs import logf
 from threading import Thread
 from time import sleep
@@ -45,6 +46,54 @@ def PRESS(key: str):
     pyautogui.press(key)
 
 
+@logf()
+def read_macrofile(pymfile: str = 'm/test.pym') -> list:
+    """ this is its own func to allow easy logging with logf, returns macrofile lines as list """
+    with open(pymfile, 'r+', encoding='utf8') as f:
+        return f.read().splitlines()
+
+
+@logf()
+def write_macrofile(mlines: List[str], pymfile: str = 'm/test.pym') -> list:
+    """ this is its own func to allow easy logging with logf, writes list of lines to macrofile """
+    mfstr = ''
+    with open(pymfile, 'w', encoding='utf8') as f:
+        mfstr = '\n'.join([l for l in mlines])
+        logging.debug(f'writing macrofile: \n{mfstr}')
+        f.write(mfstr)
+
+
+@logf(level='info')
+def format_macrolines(mlines: List[str]) -> List[str]:
+    """ formats every line in a provided list according to expected pymfile format """
+    formlines = []
+    for l in mlines:
+        fl = l
+
+        inloop = False
+        if l.startswith(' ') or l.startswith('\t'):
+            inloop = True
+            fl = l.replace('\t', '  ')
+
+        fl = fl.strip().split()
+        fl[0] = str(fl[0]).upper()
+        fl = ' '.join(fl)
+
+        if inloop:
+            fl = '  ' + fl
+
+        formlines.append(fl)
+    return formlines
+
+
+@logf(level='info')
+def format_macrofile(pymfile: str = 'm/test.pym') -> List[str]:
+    """ replaces any lower case commands in macrofiles with upper and converts ident to 2 spaces """
+    lines = read_macrofile()
+    lines = format_macrolines(lines)
+    write_macrofile(lines)
+
+
 class Macro:
     """This class represents a Macro, essentially a script that consists of a series of commands.
 
@@ -72,10 +121,11 @@ class Macro:
         start_delay: float = 1.0,
         line_delay: float = 0.0
     ):
-        with open(pymfile, 'r', encoding='utf8') as f:
-            self.lines = f.read().splitlines()
-            self.maxlines = len(self.lines)
-            self.maxindex = self.maxlines - 1
+        self.lines = format_macrolines(read_macrofile())
+        write_macrofile(self.lines)
+
+        self.maxlines = len(self.lines)
+        self.maxindex = self.maxlines - 1
 
         self.start_delay = start_delay
         self.line_delay = line_delay
